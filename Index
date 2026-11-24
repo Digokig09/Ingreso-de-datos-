@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de Incidencias - CENIS | Ismerely</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="estilos_cenis.css">
+</head>
+<body class="animar-entrada">
+    <!-- LOGIN OBLIGATORIO PARA TRABAJADORES -->
+    <div id="workerLoginView" class="flex items-center justify-center min-h-screen p-4">
+        <div class="tarjeta-cenis max-w-md w-full">
+            <div class="flex items-center gap-3 mb-4">
+                <img src="logo_ismerely.png" alt="Ismerely" class="logo-ismerely">
+                <div>
+                    <h2 class="text-xl font-bold m-0">Acceso de Operador</h2>
+                    <p class="text-xs text-slate-500 m-0">Inicia sesión con tu usuario para subir información</p>
+                </div>
+            </div>
+            <form id="workerLoginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold">Correo de usuario</label>
+                    <input type="email" id="workerEmail" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold">Contraseña</label>
+                    <input type="password" id="workerPass" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
+                </div>
+                <button type="submit" class="btn-rosa w-full py-2.5 text-sm uppercase">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VISTA DE CAPTURA (SOLO CON SESIÓN INICIADA) -->
+    <div id="workerAppView" class="hidden">
+        <header class="header-cenis">
+            <div class="brand-box">
+                <img src="logo_ismerely.png" alt="Ismerely Mi Estilo de Vida" class="logo-ismerely">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wide m-0">Administración de CENIS</h1>
+                    <p class="text-xs text-pink-100 m-0">Registro operativo de Cancelaciones y Cambios de Forma de Pago</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+                <span id="badgeUsuario" class="bg-white/15 px-3 py-1.5 rounded-full font-semibold">Usuario: -</span>
+                <button type="button" onclick="cerrarSesionTrabajador()" class="btn-verde px-3 py-1.5 uppercase">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto px-4 space-y-6">
+            <!-- Paso 1: Ubicación y Límite -->
+            <div class="tarjeta-cenis">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1">1. Tipo de Almacén</label>
+                        <select id="tipoAlmacen" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 bg-white outline-none transition">
+                            <option value="">Selecciona tipo...</option>
+                            <option value="Nacional">Nacional</option>
+                            <option value="Extranjero">Extranjero</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1">2. Centro de Distribución</label>
+                        <select id="centroDist" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 bg-white outline-none transition" disabled>
+                            <option value="">Primero elige tipo...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1">País Detectado</label>
+                        <input type="text" id="paisInput" readonly class="w-full border-2 border-slate-100 rounded-lg p-2.5 bg-slate-100 text-slate-600 font-semibold" placeholder="-">
+                    </div>
+                </div>
+                <div id="infoLimiteAlmacen" class="mt-3 text-xs font-semibold text-[#2b1926] bg-[#fff5fa] border border-pink-200 px-3 py-2 rounded-lg hidden"></div>
+            </div>
+
+            <!-- Tabs y Formularios -->
+            <div class="tarjeta-cenis" style="border-left-color: var(--ismerely-verde);">
+                <div class="flex gap-3 mb-6 border-b pb-2">
+                    <button type="button" onclick="switchTab('cancelaciones')" id="tab-cancelaciones" class="px-4 py-2 font-bold border-b-4 border-[#e6007e] text-[#2b1926] transition">
+                        Formato de Cancelaciones
+                    </button>
+                    <button type="button" onclick="switchTab('cambios')" id="tab-cambios" class="px-4 py-2 font-semibold text-slate-400 hover:text-[#2b1926] transition">
+                        Cambios de Forma de Pago
+                    </button>
+                </div>
+
+                <!-- FORMULARIO 1: CANCELACIONES -->
+                <form id="formCancelaciones" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold">Fecha manual del registro</label>
+                            <input type="date" name="fecha_registro_manual" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Usuario de mostrador</label>
+                            <input type="text" name="usuario_mostrador" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Núm. de venta</label>
+                            <input type="text" name="num_venta" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">ID de embajador</label>
+                            <input type="text" name="id_embajador" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold">Nombre del embajador</label>
+                            <input type="text" name="nombre_embajador" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#fdf9fb] p-4 rounded-xl border border-pink-100">
+                        <div>
+                            <label class="block text-xs font-bold">Forma de pago 1</label>
+                            <select name="forma_pago_1" class="select-pago w-full border rounded-lg p-2 bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold">Monto 1</label>
+                            <input type="number" step="0.01" name="monto_1" value="0" oninput="calcTotalCancel()" class="w-full border rounded-lg p-2 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold">Forma de pago 2</label>
+                            <select name="forma_pago_2" class="select-pago w-full border rounded-lg p-2 bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold">Monto 2</label>
+                            <input type="number" step="0.01" name="monto_2" value="0" oninput="calcTotalCancel()" class="w-full border rounded-lg p-2 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#2b1926]">Total Calculado</label>
+                            <input type="text" id="totalCancel" readonly value="$0.00" class="w-full border rounded-lg p-2 bg-white font-black text-[#e6007e]">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold">Motivo de la cancelación</label>
+                            <select name="motivo_cancelacion" id="selectMotivo" required class="w-full border-2 border-pink-100 rounded-lg p-2 bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Sustitución</label>
+                            <input type="text" name="sustitucion" class="w-full border-2 border-pink-100 rounded-lg p-2 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Responsable</label>
+                            <select name="responsable" class="select-responsable w-full border-2 border-pink-100 rounded-lg p-2 bg-white" required></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-rosa px-6 py-3 text-sm uppercase tracking-wider">Guardar Cancelación</button>
+                </form>
+
+                <!-- FORMULARIO 2: CAMBIOS DE FORMA DE PAGO -->
+                <form id="formCambios" class="space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold">Fecha manual del registro</label>
+                            <input type="date" name="fecha_registro_manual" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Usuario de mostrador</label>
+                            <input type="text" name="usuario_mostrador" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Núm. de venta</label>
+                            <input type="text" name="num_venta" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">ID de embajador</label>
+                            <input type="text" name="id_embajador" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold">Nombre del embajador</label>
+                            <input type="text" name="nombre_embajador" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                    </div>
+
+                    <div class="bg-[#fdf9fb] border border-[#8cc63f] p-4 rounded-xl">
+                        <h3 class="text-sm font-bold text-[#2b1926] mb-2">Formas de Pago (CORREGIDO)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                            <select name="forma_pago_corr_1" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_corr_1" placeholder="Monto 1" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_corr_2" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_corr_2" placeholder="Monto 2" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_corr_3" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_corr_3" placeholder="Monto 3" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-xl">
+                        <h3 class="text-sm font-bold text-amber-900 mb-2">Formas de Pago (ANTERIOR)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                            <select name="forma_pago_ant_1" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_ant_1" placeholder="Monto 1" value="0" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_ant_2" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_ant_2" placeholder="Monto 2" value="0" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_ant_3" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
+                            <input type="number" step="0.01" name="monto_ant_3" placeholder="Monto 3" value="0" class="border rounded-lg p-2 bg-white text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-[#2b1926]">Total Corregido</label>
+                            <input type="text" id="totalCambio" readonly value="$0.00" class="w-full border rounded-lg p-2 bg-[#fdf9fb] font-black text-[#e6007e]">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold">Descripción de la nota</label>
+                            <input type="text" name="descripcion_nota" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold">Responsable</label>
+                            <select name="responsable" class="select-responsable w-full border-2 border-pink-100 rounded-lg p-2 bg-white" required></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-verde px-6 py-3 text-sm uppercase tracking-wider">Guardar Cambio de Pago</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        let usuarioActual = null;
+
+        function mostrarAppTrabajador(email) {
+            usuarioActual = email;
+            document.getElementById('badgeUsuario').innerText = 'Usuario: ' + email;
+            document.getElementById('workerLoginView').classList.add('hidden');
+            document.getElementById('workerAppView').classList.remove('hidden');
+        }
+
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user?.email) {
+                mostrarAppTrabajador(session.user.email);
+            }
+        });
+
+        document.getElementById('workerLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('workerEmail').value.trim();
+            const password = document.getElementById('workerPass').value;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert('No se pudo iniciar sesión: ' + error.message);
+            } else {
+                mostrarAppTrabajador(data.user.email);
+            }
+        });
+
+        async function cerrarSesionTrabajador() {
+            await supabaseClient.auth.signOut();
+            location.reload();
+        }
+
+        function poblarFormasPago(listaOpciones) {
+            const opciones = (Array.isArray(listaOpciones) && listaOpciones.length > 0)
+                ? listaOpciones
+                : CATALOGOS.formasPagoDefault;
+            document.querySelectorAll('.select-pago').forEach(sel => {
+                const actual = sel.value;
+                sel.innerHTML = '<option value="">-- Ninguno --</option>' +
+                    opciones.map(p => `<option value="${p}">${p}</option>`).join('');
+                if (opciones.includes(actual)) sel.value = actual;
+            });
+        }
+
+        poblarFormasPago(CATALOGOS.formasPagoDefault);
+        document.getElementById('selectMotivo').innerHTML = CATALOGOS.motivosCancelacion.map(m => `<option value="${m}">${m}</option>`).join('');
+        document.querySelectorAll('.select-responsable').forEach(sel => {
+            sel.innerHTML = CATALOGOS.responsables.map(r => `<option value="${r}">${r}</option>`).join('');
+        });
+
+        const tipoSel = document.getElementById('tipoAlmacen');
+        const centroSel = document.getElementById('centroDist');
+        const paisInput = document.getElementById('paisInput');
+        const infoLimite = document.getElementById('infoLimiteAlmacen');
+
+        tipoSel.addEventListener('change', () => {
+            const lista = (CATALOGOS.almacenes[tipoSel.value] || []).filter(a => a.nombre);
+            centroSel.disabled = lista.length === 0;
+            centroSel.innerHTML = '<option value="">Selecciona almacén...</option>' +
+                lista.map((a, idx) => `<option value="${a.nombre}" data-pais="${a.pais}" data-idx="${idx}">${a.nombre}</option>`).join('');
+            paisInput.value = '';
+            infoLimite.classList.add('hidden');
+            poblarFormasPago(CATALOGOS.formasPagoDefault);
+        });
+
+        centroSel.addEventListener('change', async () => {
+            const opt = centroSel.options[centroSel.selectedIndex];
+            if (!opt || !opt.value) {
+                paisInput.value = '';
+                infoLimite.classList.add('hidden');
+                poblarFormasPago(CATALOGOS.formasPagoDefault);
+                return;
+            }
+            const objAlmacen = (CATALOGOS.almacenes[tipoSel.value] || []).find(a => a.nombre === opt.value);
+            paisInput.value = objAlmacen?.pais || opt.dataset.pais || '';
+            poblarFormasPago(objAlmacen?.formasPago);
+
+            if (objAlmacen && objAlmacen.limiteCancelaciones > 0) {
+                const mesActual = new Date().toISOString().slice(0, 7) + '-01';
+                const { count } = await supabaseClient
+                    .from('cenis_cancelaciones')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('centro_distribucion', objAlmacen.nombre)
+                    .gte('fecha_registro_manual', mesActual);
+                const usados = count || 0;
+                infoLimite.classList.remove('hidden');
+                infoLimite.innerText = `Límite mensual de cancelaciones para ${objAlmacen.nombre}: ${usados} / ${objAlmacen.limiteCancelaciones}`;
+            } else {
+                infoLimite.classList.add('hidden');
+            }
+        });
+
+        function switchTab(tab) {
+            const isC
