@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Incidencias - CENIS | Ismerely</title>
+    <title>Captura de Incidencias - CENIS | Ismerely</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="estilos_cenis.css">
 </head>
+
 <body class="animar-entrada">
-    <!-- LOGIN OBLIGATORIO -->
+    <!-- LOGIN OBLIGATORIO PARA TRABAJADORES -->
     <div id="workerLoginView" class="flex items-center justify-center min-h-screen p-4">
         <div class="tarjeta-cenis max-w-md w-full">
             <div class="flex items-center gap-3 mb-4">
@@ -22,39 +24,44 @@
             <form id="workerLoginForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold">Correo de usuario</label>
-                    <input type="email" id="workerEmail" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
+                    <input type="email" id="workerEmail" required
+                        class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold">Contraseña</label>
-                    <input type="password" id="workerPass" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
+                    <input type="password" id="workerPass" required
+                        class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 mt-1 outline-none">
                 </div>
                 <button type="submit" class="btn-rosa w-full py-2.5 text-sm uppercase">Iniciar Sesión</button>
             </form>
         </div>
     </div>
 
-    <!-- VISTA DE REGISTROS -->
+    <!-- VISTA DE CAPTURA (SOLO CON SESIÓN INICIADA) -->
     <div id="workerAppView" class="hidden">
         <header class="header-cenis">
             <div class="brand-box">
                 <img src="logo_ismerely.png" alt="Ismerely Mi Estilo de Vida" class="logo-ismerely">
                 <div>
                     <h1 class="text-xl md:text-2xl font-bold tracking-wide m-0">Administración de CENIS</h1>
-                    <p class="text-xs text-pink-100 m-0">Registro operativo · Cancelaciones y Cambios de Forma de Pago</p>
+                    <p class="text-xs text-pink-100 m-0">Registro operativo de Cancelaciones y Cambios de Forma de Pago
+                    </p>
                 </div>
             </div>
             <div class="flex items-center gap-3 text-xs">
                 <span id="badgeUsuario" class="bg-white/15 px-3 py-1.5 rounded-full font-semibold">Usuario: -</span>
-                <button type="button" onclick="cerrarSesionTrabajador()" class="btn-verde px-3 py-1.5 uppercase">Cerrar Sesión</button>
+                <button type="button" onclick="cerrarSesionTrabajador()" class="btn-verde px-3 py-1.5 uppercase">Cerrar
+                    Sesión</button>
             </div>
         </header>
 
         <div class="max-w-5xl mx-auto px-4 space-y-6">
+            <!-- Paso 1: Ubicación y Límite -->
             <div class="tarjeta-cenis">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1">1. Tipo de Almacén</label>
-                        <select id="tipoAlmacen" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 bg-white outline-none transition">
+                        <select id="tipoAlmacen">
                             <option value="">Selecciona tipo...</option>
                             <option value="Nacional">Nacional</option>
                             <option value="Extranjero">Extranjero</option>
@@ -62,26 +69,38 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1">2. Centro de Distribución</label>
-                        <select id="centroDist" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2.5 bg-white outline-none transition" disabled>
+                        <select id="centroDist" disabled>
                             <option value="">Primero elige tipo...</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase mb-1">País Detectado</label>
-                        <input type="text" id="paisInput" readonly class="w-full border-2 border-slate-100 rounded-lg p-2.5 bg-slate-100 text-slate-600 font-semibold" placeholder="-">
+                        <input type="text" id="paisInput" readonly
+                            class="w-full border-2 border-slate-100 rounded-lg p-2 bg-slate-100 text-slate-600 font-semibold"
+                            placeholder="-">
                     </div>
                 </div>
-                <div id="infoLimiteAlmacen" class="mt-3 text-xs font-semibold text-[#2b1926] bg-[#fff5fa] border border-pink-200 px-3 py-2 rounded-lg hidden"></div>
+                <div id="infoLimiteAlmacen"
+                    class="mt-3 text-xs font-semibold text-[#2b1926] bg-[#fff5fa] border border-pink-200 px-3 py-2 rounded-lg hidden">
+                </div>
             </div>
 
+            <!-- Tabs y Formularios -->
             <div class="tarjeta-cenis" style="border-left-color: var(--ismerely-verde);">
                 <div class="flex gap-3 mb-6 border-b pb-2">
-                    <button type="button" onclick="switchTab('cancelaciones')" id="tab-cancelaciones" class="px-4 py-2 font-bold border-b-4 border-[#e6007e] text-[#2b1926] transition">
+                    <button type="button" onclick="switchTab('cancelaciones')" id="tab-cancelaciones"
+                        class="px-4 py-2 font-bold border-b-4 border-[#e6007e] text-[#2b1926] transition">
                         Formato de Cancelaciones
                     </button>
-                    <button type="button" onclick="switchTab('cambios')" id="tab-cambios" class="px-4 py-2 font-semibold text-slate-400 hover:text-[#2b1926] transition">
+                    <button type="button" onclick="switchTab('cambios')" id="tab-cambios"
+                        class="px-4 py-2 font-semibold text-slate-400 hover:text-[#2b1926] transition">
                         Cambios de Forma de Pago
                     </button>
+                </div>
+
+                <!-- ALERTA DE VENTA DUPLICADA -->
+                <div id="alertaVentaDuplicada"
+                    class="hidden mb-4 p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-800 text-xs font-bold">
                 </div>
 
                 <!-- FORMULARIO 1: CANCELACIONES -->
@@ -89,65 +108,76 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold">Fecha manual del registro</label>
-                            <input type="date" name="fecha_registro_manual" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                            <input type="date" name="fecha_registro_manual" required
+                                class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Usuario de mostrador</label>
-                            <input type="text" name="usuario_mostrador" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                            <input type="text" name="usuario_mostrador" required
+                                class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Núm. de venta</label>
-                            <input type="text" name="num_venta" required class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                            <input type="text" name="num_venta" required
+                                class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">ID de embajador</label>
-                            <input type="text" name="id_embajador" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                            <input type="text" name="id_embajador"
+                                class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold">Nombre del embajador</label>
-                            <input type="text" name="nombre_embajador" class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
+                            <input type="text" name="nombre_embajador"
+                                class="w-full border-2 border-pink-100 focus:border-[#e6007e] rounded-lg p-2 outline-none">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#fdf9fb] p-4 rounded-xl border border-pink-100">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#fdf9fb] p-4 rounded-xl border border-pink-100">
                         <div>
                             <label class="block text-xs font-bold">Forma de pago 1</label>
-                            <select name="forma_pago_1" class="select-pago w-full border rounded-lg p-2 bg-white"></select>
+                            <select name="forma_pago_1" class="select-pago"></select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold">Monto 1</label>
-                            <input type="number" step="0.01" name="monto_1" value="0" oninput="calcTotalCancel()" class="w-full border rounded-lg p-2 bg-white">
+                            <input type="number" step="0.01" name="monto_1" value="0" oninput="calcTotalCancel()"
+                                class="w-full border rounded-lg p-2 bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold">Forma de pago 2</label>
-                            <select name="forma_pago_2" class="select-pago w-full border rounded-lg p-2 bg-white"></select>
+                            <select name="forma_pago_2" class="select-pago"></select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold">Monto 2</label>
-                            <input type="number" step="0.01" name="monto_2" value="0" oninput="calcTotalCancel()" class="w-full border rounded-lg p-2 bg-white">
+                            <input type="number" step="0.01" name="monto_2" value="0" oninput="calcTotalCancel()"
+                                class="w-full border rounded-lg p-2 bg-white">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#2b1926]">Total Calculado</label>
-                            <input type="text" id="totalCancel" readonly value="$0.00" class="w-full border rounded-lg p-2 bg-white font-black text-[#e6007e]">
+                            <input type="text" id="totalCancel" readonly value="$0.00"
+                                class="w-full border rounded-lg p-2 bg-white font-black text-[#e6007e]">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold">Motivo de la cancelación</label>
-                            <select name="motivo_cancelacion" id="selectMotivo" required class="w-full border-2 border-pink-100 rounded-lg p-2 bg-white"></select>
+                            <select name="motivo_cancelacion" id="selectMotivo" required></select>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Sustitución</label>
-                            <input type="text" name="sustitucion" class="w-full border-2 border-pink-100 rounded-lg p-2 outline-none">
+                            <input type="text" name="sustitucion"
+                                class="w-full border-2 border-pink-100 rounded-lg p-2 outline-none">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Responsable</label>
-                            <select name="responsable" class="select-responsable w-full border-2 border-pink-100 rounded-lg p-2 bg-white" required></select>
+                            <select name="responsable" class="select-responsable" required></select>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-rosa px-6 py-3 text-sm uppercase tracking-wider">Guardar Cancelación</button>
+                    <button type="submit" class="btn-rosa px-6 py-3 text-sm uppercase tracking-wider">Guardar
+                        Cancelación</button>
                 </form>
 
                 <!-- FORMULARIO 2: CAMBIOS DE FORMA DE PAGO -->
@@ -155,66 +185,80 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-semibold">Fecha manual del registro</label>
-                            <input type="date" name="fecha_registro_manual" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="date" name="fecha_registro_manual" required
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Usuario de mostrador</label>
-                            <input type="text" name="usuario_mostrador" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="text" name="usuario_mostrador" required
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Núm. de venta</label>
-                            <input type="text" name="num_venta" required class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="text" name="num_venta" required
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">ID de embajador</label>
-                            <input type="text" name="id_embajador" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="text" name="id_embajador"
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold">Nombre del embajador</label>
-                            <input type="text" name="nombre_embajador" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="text" name="nombre_embajador"
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                     </div>
 
                     <div class="bg-[#fdf9fb] border border-[#8cc63f] p-4 rounded-xl">
                         <h3 class="text-sm font-bold text-[#2b1926] mb-2">Formas de Pago (CORREGIDO)</h3>
                         <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-                            <select name="forma_pago_corr_1" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_corr_1" placeholder="Monto 1" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
-                            <select name="forma_pago_corr_2" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_corr_2" placeholder="Monto 2" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
-                            <select name="forma_pago_corr_3" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_corr_3" placeholder="Monto 3" value="0" oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_corr_1" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_corr_1" placeholder="Monto 1" value="0"
+                                oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_corr_2" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_corr_2" placeholder="Monto 2" value="0"
+                                oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_corr_3" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_corr_3" placeholder="Monto 3" value="0"
+                                oninput="calcTotalCambio()" class="border rounded-lg p-2 bg-white text-sm">
                         </div>
                     </div>
 
                     <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-xl">
                         <h3 class="text-sm font-bold text-amber-900 mb-2">Formas de Pago (ANTERIOR)</h3>
                         <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-                            <select name="forma_pago_ant_1" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_ant_1" placeholder="Monto 1" value="0" class="border rounded-lg p-2 bg-white text-sm">
-                            <select name="forma_pago_ant_2" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_ant_2" placeholder="Monto 2" value="0" class="border rounded-lg p-2 bg-white text-sm">
-                            <select name="forma_pago_ant_3" class="select-pago border rounded-lg p-2 bg-white text-sm"></select>
-                            <input type="number" step="0.01" name="monto_ant_3" placeholder="Monto 3" value="0" class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_ant_1" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_ant_1" placeholder="Monto 1" value="0"
+                                class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_ant_2" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_ant_2" placeholder="Monto 2" value="0"
+                                class="border rounded-lg p-2 bg-white text-sm">
+                            <select name="forma_pago_ant_3" class="select-pago"></select>
+                            <input type="number" step="0.01" name="monto_ant_3" placeholder="Monto 3" value="0"
+                                class="border rounded-lg p-2 bg-white text-sm">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-[#2b1926]">Total Corregido</label>
-                            <input type="text" id="totalCambio" readonly value="$0.00" class="w-full border rounded-lg p-2 bg-[#fdf9fb] font-black text-[#e6007e]">
+                            <input type="text" id="totalCambio" readonly value="$0.00"
+                                class="w-full border rounded-lg p-2 bg-[#fdf9fb] font-black text-[#e6007e]">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold">Descripción de la nota</label>
-                            <input type="text" name="descripcion_nota" class="w-full border-2 border-pink-100 rounded-lg p-2">
+                            <input type="text" name="descripcion_nota"
+                                class="w-full border-2 border-pink-100 rounded-lg p-2">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold">Responsable</label>
-                            <select name="responsable" class="select-responsable w-full border-2 border-pink-100 rounded-lg p-2 bg-white" required></select>
+                            <select name="responsable" class="select-responsable" required></select>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-verde px-6 py-3 text-sm uppercase tracking-wider">Guardar Cambio de Pago</button>
+                    <button type="submit" class="btn-verde px-6 py-3 text-sm uppercase tracking-wider">Guardar Cambio de
+                        Pago</button>
                 </form>
             </div>
         </div>
@@ -317,4 +361,142 @@
         function switchTab(tab) {
             const isCancel = tab === 'cancelaciones';
             document.getElementById('formCancelaciones').classList.toggle('hidden', !isCancel);
-  
+            document.getElementById('formCambios').classList.toggle('hidden', isCancel);
+            document.getElementById('tab-cancelaciones').className = isCancel
+                ? 'px-4 py-2 font-bold border-b-4 border-[#e6007e] text-[#2b1926] transition'
+                : 'px-4 py-2 font-semibold text-slate-400 hover:text-[#2b1926] transition';
+            document.getElementById('tab-cambios').className = !isCancel
+                ? 'px-4 py-2 font-bold border-b-4 border-[#8cc63f] text-[#2b1926] transition'
+                : 'px-4 py-2 font-semibold text-slate-400 hover:text-[#2b1926] transition';
+            ocultarAlertaDuplicado();
+        }
+
+        function calcTotalCancel() {
+            const f = document.getElementById('formCancelaciones');
+            const tot = (parseFloat(f.monto_1.value) || 0) + (parseFloat(f.monto_2.value) || 0);
+            document.getElementById('totalCancel').value = '$' + tot.toFixed(2);
+        }
+
+        function calcTotalCambio() {
+            const f = document.getElementById('formCambios');
+            const tot = (parseFloat(f.monto_corr_1.value) || 0) + (parseFloat(f.monto_corr_2.value) || 0) + (parseFloat(f.monto_corr_3.value) || 0);
+            document.getElementById('totalCambio').value = '$' + tot.toFixed(2);
+        }
+
+        function mostrarAlertaDuplicado(mensaje) {
+            const box = document.getElementById('alertaVentaDuplicada');
+            box.innerText = mensaje;
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            alert(mensaje);
+        }
+
+        function ocultarAlertaDuplicado() {
+            const box = document.getElementById('alertaVentaDuplicada');
+            if (box) {
+                box.innerText = '';
+                box.classList.add('hidden');
+            }
+        }
+
+        async function existeVentaCancelada(numVenta) {
+            const limpio = (numVenta || '').trim();
+            if (!limpio) return false;
+
+            const { data, error } = await supabaseClient
+                .from('cenis_cancelaciones')
+                .select('id, num_venta')
+                .eq('num_venta', limpio)
+                .limit(1);
+
+            if (error) {
+                console.error('Error al verificar duplicado:', error.message);
+                return false;
+            }
+            return Array.isArray(data) && data.length > 0;
+        }
+
+        async function verificarLimiteCancelacion(nombreAlmacen) {
+            const objAlmacen = [...CATALOGOS.almacenes.Nacional, ...CATALOGOS.almacenes.Extranjero]
+                .find(a => a.nombre === nombreAlmacen);
+            if (!objAlmacen || !objAlmacen.limiteCancelaciones || objAlmacen.limiteCancelaciones <= 0) {
+                return true;
+            }
+            const mesActual = new Date().toISOString().slice(0, 7) + '-01';
+            const { count } = await supabaseClient
+                .from('cenis_cancelaciones')
+                .select('*', { count: 'exact', head: true })
+                .eq('centro_distribucion', nombreAlmacen)
+                .gte('fecha_registro_manual', mesActual);
+
+            if ((count || 0) >= objAlmacen.limiteCancelaciones) {
+                alert(`Se alcanzó el límite mensual de cancelaciones (${objAlmacen.limiteCancelaciones}) para ${nombreAlmacen}.`);
+                return false;
+            }
+            return true;
+        }
+
+        async function handleInsert(formElement, tableName) {
+            if (!usuarioActual) {
+                alert('Debes iniciar sesión con un usuario para subir información.');
+                return;
+            }
+            if (!tipoSel.value || !centroSel.value) {
+                alert('Por favor selecciona primero el Tipo de Almacén y el Centro de Distribución.');
+                return;
+            }
+            if (tableName === 'cenis_cancelaciones') {
+                const permitido = await verificarLimiteCancelacion(centroSel.value);
+                if (!permitido) return;
+            }
+
+            const formData = new FormData(formElement);
+            const payload = Object.fromEntries(formData.entries());
+
+            Object.keys(payload).forEach(k => {
+                if (k.startsWith('monto_') && payload[k] === '') payload[k] = 0;
+                if (payload[k] === '') payload[k] = null;
+            });
+
+            payload.fecha = payload.fecha_registro_manual;
+            payload.fecha_registro_servidor = new Date().toISOString();
+            payload.registrado_por = usuarioActual;
+            payload.tipo_almacen = tipoSel.value;
+            payload.centro_distribucion = centroSel.value;
+            payload.pais = paisInput.value || 'México';
+
+            if (tableName === 'cenis_cancelaciones') {
+                const duplicada = await existeVentaCancelada(payload.num_venta);
+                if (duplicada) {
+                    mostrarAlertaDuplicado(
+                        `¡Alerta! El número de nota de venta "${payload.num_venta}" ya existe en cancelaciones. No se agregó el registro.`
+                    );
+                    return;
+                }
+                ocultarAlertaDuplicado();
+            }
+
+            const { error } = await supabaseClient.from(tableName).insert([payload]);
+            if (error) {
+                alert('Error al guardar en Supabase: ' + error.message);
+            } else {
+                alert('Registro guardado exitosamente.');
+                formElement.reset();
+                calcTotalCancel();
+                calcTotalCambio();
+            }
+        }
+
+        document.getElementById('formCancelaciones').addEventListener('submit', e => {
+            e.preventDefault();
+            handleInsert(e.target, 'cenis_cancelaciones');
+        });
+
+        document.getElementById('formCambios').addEventListener('submit', e => {
+            e.preventDefault();
+            handleInsert(e.target, 'cenis_cambios_pago');
+        });
+    </script>
+</body>
+
+</html>
