@@ -1,4 +1,4 @@
-/* estilos_cenis.css */
+/* estilos_cenis.css - Paleta y Componentes Ismerely */
 :root {
     --ismerely-rosa: #e6007e;
     --ismerely-rosa-hover: #c9006e;
@@ -6,6 +6,7 @@
     --ismerely-verde: #8cc63f;
     --ismerely-verde-hover: #76ab2d;
     --ismerely-oscuro: #2b1926;
+    --ismerely-texto: #5a4352;
     --fondo-crema: #fdf9fb;
     --blanco: #ffffff;
 }
@@ -20,8 +21,15 @@ body {
 }
 
 @keyframes aparecerSuave {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .animar-entrada {
@@ -31,40 +39,51 @@ body {
 .header-cenis {
     background: linear-gradient(135deg, var(--ismerely-oscuro) 0%, #46233b 100%);
     color: var(--blanco);
-    padding: 16px 24px;
+    padding: 16px 28px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
     box-shadow: 0 4px 14px rgba(230, 0, 126, 0.16);
     border-bottom: 4px solid var(--ismerely-rosa);
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .brand-box {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
 }
 
 .logo-ismerely {
-    height: 52px;
+    height: 54px;
     width: auto;
-    max-width: 175px;
+    max-width: 185px;
     object-fit: contain;
     background-color: var(--blanco);
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 12px;
     box-shadow: 0 0 14px rgba(244, 154, 193, 0.55);
+    transition: transform 0.3s ease;
+}
+
+.logo-ismerely:hover {
+    transform: scale(1.04);
 }
 
 .tarjeta-cenis {
     background: var(--blanco);
     border-radius: 15px;
-    padding: 22px;
+    padding: 24px;
     box-shadow: 0 6px 20px rgba(43, 25, 38, 0.06);
     border-left: 6px solid var(--ismerely-rosa);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tarjeta-cenis:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(230, 0, 126, 0.1);
 }
 
 .btn-rosa {
@@ -74,12 +93,13 @@ body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.25s ease, background-color 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, background-color 0.3s;
 }
 
 .btn-rosa:hover {
     background-color: var(--ismerely-rosa-hover);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(230, 0, 126, 0.32);
 }
 
 .btn-verde {
@@ -96,4 +116,277 @@ body {
     background-color: var(--ismerely-verde-hover);
     color: var(--blanco);
     transform: translateY(-2px);
+}
+
+.btn-oscuro {
+    background-color: var(--ismerely-oscuro);
+    color: var(--blanco);
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.btn-oscuro:hover {
+    background-color: #46233b;
+    transform: translateY(-2px);
+}
+
+/* Botón Seleccionar Archivo (.xlsx) Personalizado */
+.input-file-ismerely {
+    width: 100%;
+    padding: 6px;
+    border: 2px dashed #f2b8d8;
+    border-radius: 10px;
+    background-color: #fff9fc;
+    color: var(--ismerely-texto);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.input-file-ismerely:hover {
+    border-color: var(--ismerely-rosa);
+    background-color: #fdeaf4;
+}
+
+.input-file-ismerely::file-selector-button {
+    background: linear-gradient(135deg, var(--ismerely-rosa) 0%, #c9006e 100%);
+    color: var(--blanco);
+    border: none;
+    border-radius: 7px;
+    padding: 7px 14px;
+    margin-right: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-file-ismerely::file-selector-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(230, 0, 126, 0.3);
+}
+
+/* Menús Desplegables Personalizados Ismerely */
+.ismerely-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.ismerely-select-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 2px solid #f2cce2;
+    border-radius: 9px;
+    background-color: var(--blanco);
+    color: var(--ismerely-oscuro);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ismerely-select-trigger:hover:not(.is-disabled),
+.ismerely-select-trigger.is-open {
+    border-color: var(--ismerely-rosa);
+    box-shadow: 0 4px 12px rgba(230, 0, 126, 0.14);
+}
+
+.ismerely-select-trigger.is-disabled {
+    background-color: #f3eff2;
+    color: #9b8894;
+    cursor: not-allowed;
+}
+
+.ismerely-select-arrow {
+    color: var(--ismerely-rosa);
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+
+.ismerely-select-trigger.is-open .ismerely-select-arrow {
+    transform: rotate(180deg);
+}
+
+.ismerely-select-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    max-height: 230px;
+    overflow-y: auto;
+    background: var(--blanco);
+    border: 2px solid var(--ismerely-rosa);
+    border-radius: 12px;
+    padding: 5px;
+    box-shadow: 0 12px 28px rgba(43, 25, 38, 0.18);
+    animation: aparecerSuave 0.18s ease-out;
+}
+
+.ismerely-select-option {
+    width: 100%;
+    display: block;
+    text-align: left;
+    padding: 8px 11px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ismerely-oscuro);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ismerely-select-option:hover {
+    background-color: #fde6f2;
+    color: var(--ismerely-rosa);
+}
+
+.ismerely-select-option.is-selected {
+    background: linear-gradient(90deg, var(--ismerely-rosa) 0%, #c9006e 100%);
+    color: var(--blanco);
+    font-weight: 700;
+}
+
+/* Desplegable de Selección Múltiple */
+.multiselect-wrapper {
+    position: relative;
+}
+
+.multiselect-trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--blanco);
+    border: 2px solid #f2cce2;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ismerely-oscuro);
+    cursor: pointer;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.multiselect-trigger:hover,
+.multiselect-trigger.activo {
+    border-color: var(--ismerely-rosa);
+    box-shadow: 0 4px 12px rgba(230, 0, 126, 0.12);
+}
+
+.multiselect-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    background: var(--blanco);
+    border: 2px solid var(--ismerely-rosa);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 14px 30px rgba(43, 25, 38, 0.16);
+    animation: aparecerSuave 0.2s ease-out;
+}
+
+.multiselect-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.chip-opcion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1.5px solid #f5d8e9;
+    background-color: #fff9fc;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ismerely-oscuro);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chip-opcion:hover {
+    border-color: var(--ismerely-rosa);
+    background-color: #fdeaf4;
+    transform: translateY(-1px);
+}
+
+.chip-opcion.seleccionado {
+    background: linear-gradient(135deg, #ffe3f2 0%, #f5ffe8 100%);
+    border-color: var(--ismerely-rosa);
+    box-shadow: 0 2px 8px rgba(230, 0, 126, 0.14);
+}
+
+.chip-opcion input[type="checkbox"] {
+    accent-color: var(--ismerely-verde);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* Tablas personalizadas Ismerely */
+.tabla-ismerely {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #f2d5e6;
+    background: var(--blanco);
+}
+
+.tabla-ismerely thead th {
+    background: linear-gradient(90deg, var(--ismerely-oscuro), #4a233d);
+    color: var(--blanco);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 3px solid var(--ismerely-rosa);
+}
+
+.tabla-ismerely tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.tabla-ismerely tbody tr:nth-child(even) {
+    background-color: #fff8fc;
+}
+
+.tabla-ismerely tbody tr:hover {
+    background-color: #fde8f3;
+}
+
+.tabla-ismerely tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #f6e4ef;
+    color: var(--ismerely-texto);
+    vertical-align: middle;
+}
+
+.badge-monto {
+    display: inline-block;
+    background-color: rgba(140, 198, 63, 0.22);
+    color: #3d5e10;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
 }
